@@ -4,7 +4,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 find_package(LibGcrypt REQUIRED)
 find_package(CURL REQUIRED)
-find_package(Boost 1.40.0 COMPONENTS program_options filesystem unit_test_framework regex system REQUIRED)
+find_package(Boost 1.40.0 COMPONENTS program_options filesystem unit_test_framework system REQUIRED)
 find_package(BFD)
 find_package(CppUnit)
 find_package(Iberty)
@@ -79,7 +79,6 @@ target_link_libraries( grive
 	${LIBGCRYPT_LIBRARIES}
 	${Boost_FILESYSTEM_LIBRARY}
 	${Boost_PROGRAM_OPTIONS_LIBRARY}
-	${Boost_REGEX_LIBRARY}
 	${Boost_SYSTEM_LIBRARY}
 	${IBERTY_LIBRARY}
 	${OPT_LIBS}

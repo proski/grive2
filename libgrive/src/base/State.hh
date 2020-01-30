@@ -26,7 +26,7 @@
 #include "json/Val.hh"
 
 #include <memory>
-#include <boost/regex.hpp>
+#include <regex>
 
 namespace gr {
 
@@ -77,7 +77,7 @@ private :
 	ResourceTree		m_res ;
 	int					m_cstamp ;
 	std::string			m_ign ;
-	boost::regex		m_ign_re ;
+	std::regex		m_ign_re ;
 	Val					m_st ;
 	bool				m_force ;
 	bool				m_ign_changed ;

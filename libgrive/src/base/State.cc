@@ -38,11 +38,11 @@ const std::string state_file = ".grive_state" ;
 const std::string ignore_file = ".griveignore" ;
 const int MAX_IGN = 65536 ;
 const char* regex_escape_chars = ".^$|()[]{}*+?\\";
-const boost::regex regex_escape_re( "[.^$|()\\[\\]{}*+?\\\\]" );
+const std::regex regex_escape_re( "[.^$|()\\[\\]{}*+?\\\\]" );
 
 inline std::string regex_escape( std::string s )
 {
-	return regex_replace( s, regex_escape_re, "\\\\&", boost::format_sed );
+	return regex_replace( s, regex_escape_re, "\\\\&", std::regex_constants::format_sed );
 }
 
 State::State( const fs::path& root, const Val& options  ) :
@@ -60,7 +60,7 @@ State::State( const fs::path& root, const Val& options  ) :
 		m_ign = options["ignore"].Str();
 	else if ( options.Has( "dir" ) )
 	{
-		const boost::regex trim_path( "^/+|/+$" );
+		const std::regex trim_path( "^/+|/+$" );
 		std::string m_dir = regex_replace( options["dir"].Str(), trim_path, "" );
 		if ( !m_dir.empty() )
 		{
@@ -78,7 +78,7 @@ State::State( const fs::path& root, const Val& options  ) :
 	}
 
 	m_ign_changed = m_orig_ign != "" && m_orig_ign != m_ign;
-	m_ign_re = boost::regex( m_ign.empty() ? "^\\.(grive$|grive_state$|trash)" : ( m_ign+"|^\\.(grive$|grive_state$|trash)" ) );
+	m_ign_re = std::regex( m_ign.empty() ? "^\\.(grive$|grive_state$|trash)" : ( m_ign+"|^\\.(grive$|grive_state$|trash)" ) );
 }
 
 State::~State()
@@ -95,7 +95,7 @@ void State::FromLocal( const fs::path& p )
 
 bool State::IsIgnore( const std::string& filename )
 {
-	return regex_search( filename.c_str(), m_ign_re, boost::format_perl );
+	return regex_search( filename.c_str(), m_ign_re, std::regex_constants::format_default );
 }
 
 void State::FromLocal( const fs::path& p, Resource* folder, Val& tree )
@@ -319,11 +319,11 @@ void State::Read()
 	}
 }
 
-std::vector<std::string> split( const boost::regex& re, const char* str, int len )
+std::vector<std::string> split( const std::regex& re, const char* str, int len )
 {
 	std::vector<std::string> vec;
-	boost::cregex_token_iterator i( str, str+len, re, -1, boost::format_perl );
-	boost::cregex_token_iterator j;
+	std::cregex_token_iterator i( str, str+len, re, -1, std::regex_constants::format_default );
+	std::cregex_token_iterator j;
 	while ( i != j )
 	{
 		vec.push_back( *i++ );
@@ -333,12 +333,12 @@ std::vector<std::string> split( const boost::regex& re, const char* str, int len
 
 bool State::ParseIgnoreFile( const char* buffer, int size )
 {
-	const boost::regex re1( "([^\\\\]|^)[\\t\\r ]+$" );
-	const boost::regex re2( "^[\\t\\r ]+" );
-	const boost::regex re4( "([^\\\\](\\\\\\\\)*|^)\\\\\\*" );
-	const boost::regex re5( "([^\\\\](\\\\\\\\)*|^)\\\\\\?" );
+	const std::regex re1( "([^\\\\]|^)[\\t\\r ]+$" );
+	const std::regex re2( "^[\\t\\r ]+" );
+	const std::regex re4( "([^\\\\](\\\\\\\\)*|^)\\\\\\*" );
+	const std::regex re5( "([^\\\\](\\\\\\\\)*|^)\\\\\\?" );
 	std::string exclude_re, include_re;
-	std::vector<std::string> lines = split( boost::regex( "[\\n\\r]+" ), buffer, size );
+	std::vector<std::string> lines = split( std::regex( "[\\n\\r]+" ), buffer, size );
 	for ( int i = 0; i < (int)lines.size(); i++ )
 	{
 		std::string str = regex_replace( regex_replace( lines[i], re1, "$1" ), re2, "" );
@@ -351,7 +351,7 @@ bool State::ParseIgnoreFile( const char* buffer, int size )
 		{
 			str = str.substr( 1 );
 		}
-		std::vector<std::string> parts = split( boost::regex( "/+" ), str.c_str(), str.size() );
+		std::vector<std::string> parts = split( std::regex( "/+" ), str.c_str(), str.size() );
 		for ( int j = 0; j < (int)parts.size(); j++ )
 		{
 			if ( parts[j] == "**" )
@@ -368,8 +368,8 @@ bool State::ParseIgnoreFile( const char* buffer, int size )
 				std::string str1;
 				while (1)
 				{
-					str1 = regex_replace( parts[j], re5, "$1[^/]", boost::format_perl );
-					str1 = regex_replace( str1, re4, "$1[^/]*", boost::format_perl );
+					str1 = regex_replace( parts[j], re5, "$1[^/]", std::regex_constants::format_default );
+					str1 = regex_replace( str1, re4, "$1[^/]*", std::regex_constants::format_default );
 					if ( str1.size() == parts[j].size() )
 						break;
 					parts[j] = str1;
